@@ -1,0 +1,37 @@
+/* =====================================================================
+   Smart Healthcare Assistant | css/responsive.css
+   Tablet and phone adjustments. Load AFTER style.css (and dashboard.css).
+   ===================================================================== */
+
+/* Tablets and below */
+@media (max-width: 992px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* Phones and small tablets: mobile navigation */
+@media (max-width: 820px) {
+  .nav-toggle { display: inline-grid; }
+
+  .nav-menu {
+    position: absolute; top: var(--header-h); left: 0; right: 0;
+    flex-direction: column; align-items: stretch; gap: 0;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow); padding: .5rem 1rem 1rem;
+    display: none;
+  }
+  .nav-menu.open { display: flex; animation: toast-in .25s ease; }
+  .nav-menu a { display: block; padding: .8rem .25rem; border-bottom: 1px solid var(--border); }
+  .nav-actions .btn-label-hide-mobile { display: none; }
+}
+
+/* Phones */
+@media (max-width: 640px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .section { padding: 2.75rem 0; }
+  .card { padding: 1.2rem; }
+  .toast-region { right: .75rem; left: .75rem; bottom: .75rem; width: auto; }
+  .modal-actions .btn { flex: 1; }
+}

@@ -1,0 +1,191 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Healthcare Assistant - Foundation Test</title>
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+
+  <!-- Supabase JavaScript library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Load configuration and helpers in order -->
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/common.js"></script>
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="container">
+      <h2>Smart Healthcare Assistant</h2>
+      <button id="themeToggle" type="button">🌙 / ☀️ Theme</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Foundation Test</h1>
+      <p>Test your styles, shared helpers, and Supabase setup.</p>
+    </section>
+
+    <section class="card">
+      <h2>1. Design Test</h2>
+      <p>If this page has your intended colors, cards, and spacing,
+        your CSS files may be loading correctly.</p>
+      <button class="btn btn-primary" type="button"
+        onclick="showToast('Success toast test!', 'success')">
+        Success Toast
+      </button>
+      <button class="btn btn-secondary" type="button"
+        onclick="showToast('Error toast test!', 'error')">
+        Error Toast
+      </button>
+    </section>
+
+    <section class="card">
+      <h2>2. Confirm Dialog</h2>
+      <button class="btn btn-primary" type="button"
+        onclick="testConfirm()">
+        Test Confirmation
+      </button>
+    </section>
+
+    <section class="card">
+      <h2>3. Loading Button</h2>
+      <button id="loadingButton" class="btn btn-primary"
+        type="button" onclick="testLoading(this)">
+        Test Loading
+      </button>
+    </section>
+
+    <section class="card">
+      <h2>4. Form Validation</h2>
+      <form id="testForm" novalidate>
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email"
+          placeholder="a@b.com" required>
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password"
+          placeholder="At least 8 characters" required minlength="8">
+
+        <button class="btn btn-primary" type="submit">
+          Check Form
+        </button>
+      </form>
+      <p id="formResult" role="status"></p>
+    </section>
+
+    <section class="card">
+      <h2>5. Supabase Connection</h2>
+      <p>Checks whether the configured Supabase client can reach
+        your project.</p>
+      <button class="btn btn-primary" type="button"
+        onclick="testConnection()">
+        Test Connection
+      </button>
+      <p id="connectionResult" role="status">Not tested yet.</p>
+    </section>
+  </main>
+
+  <script>
+    function showToastFallback(message) {
+      alert(message);
+    }
+
+    function testConfirm() {
+      if (typeof confirmDialog === "function") {
+        confirmDialog("Is the confirmation dialog working?", () => {
+          showToast("Confirmed successfully!", "success");
+        });
+      } else if (typeof showConfirmDialog === "function") {
+        showConfirmDialog("Is the confirmation dialog working?", () => {
+          showToast("Confirmed successfully!", "success");
+        });
+      } else {
+        const answer = window.confirm("Is the confirmation dialog working?");
+        alert(answer ? "Confirmed!" : "Cancelled.");
+      }
+    }
+
+    function testLoading(button) {
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = "Loading...";
+
+      setTimeout(() => {
+        button.disabled = false;
+        button.textContent = originalText;
+        if (typeof showToast === "function") {
+          showToast("Loading test completed!", "success");
+        } else {
+          alert("Loading test completed!");
+        }
+      }, 2000);
+    }
+
+    document.getElementById("testForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const result = document.getElementById("formResult");
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        result.textContent = "Please enter a valid email address.";
+        return;
+      }
+
+      if (password.length < 8) {
+        result.textContent = "Password must be at least 8 characters.";
+        return;
+      }
+
+      result.textContent = "Form looks valid.";
+    });
+
+    async function testConnection() {
+      const result = document.getElementById("connectionResult");
+      result.textContent = "Checking connection...";
+
+      try {
+        // The shared client should be created by supabase-client.js.
+        const client = window.supabaseClient || window.SHA_SUPABASE;
+
+        if (!client || typeof client.from !== "function") {
+          throw new Error(
+            "Supabase client not found. Check config.js and supabase-client.js."
+          );
+        }
+
+        // A harmless read checks connectivity. A permission error can
+        // still mean the server is reachable but access is not configured.
+        const { error } = await client.from("profiles").select("id").limit(1);
+
+        if (error) {
+          result.textContent =
+            "Supabase responded, but the query failed: " + error.message +
+            ". Check your table name and Row Level Security policies.";
+        } else {
+          result.textContent =
+            "OK: Connected to Supabase. You are not logged in (that is normal for now).";
+        }
+      } catch (error) {
+        result.textContent = "Connection test failed: " + error.message;
+      }
+    }
+
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      if (typeof toggleTheme === "function") {
+        toggleTheme();
+      } else {
+        document.body.classList.toggle("dark");
+      }
+    });
+  </script>
+</body>
+</html>
